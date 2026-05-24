@@ -11,11 +11,11 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
 contract FundMe {
     mapping(address => uint256) public fundersToAmount;
 
-    uint256 constant MINIMUM_VALUE = 1 * 10 ** 18; //USD
+    uint256 constant MINIMUM_VALUE = 10 * 10 ** 18; //USD
 
-    AggregatorV3Interface internal dataFeed;
+    AggregatorV3Interface public dataFeed;
 
-    uint256 constant TARGET = 1 * 10 ** 18;
+    uint256 constant TARGET = 10 * 10 ** 18;
 
     address public owner;
 
@@ -26,9 +26,12 @@ contract FundMe {
 
     bool public getFundSuccess = false;
 
-    constructor(uint256 _lockTime) {
+    event GetFundEvent(uint256 amount);
+
+    constructor(uint256 _lockTime, address  addr) {
+        // 0x694AA1769357215DE4FAC081bf1f309aDC325306
         // sepolia testnet
-        dataFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
+        dataFeed = AggregatorV3Interface(addr);
         owner = msg.sender;
         deploymentTimestamp = block.timestamp;
         lockTime = _lockTime;
@@ -72,10 +75,12 @@ contract FundMe {
 
         // call: transfer ETH with data return value of function and bool
         bool success;
-        (success, ) = payable(msg.sender).call{value: address(this).balance}("");
+        uint balance = address(this).balance;
+        (success, ) = payable(msg.sender).call{value: balance}("");
         require(success, "transfer tx failed");
         fundersToAmount[msg.sender] = 0;
         getFundSuccess = true; // flag
+        emit GetFundEvent(balance);
     }
 
     function refund() external windowClosed {

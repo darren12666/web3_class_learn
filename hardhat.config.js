@@ -1,6 +1,7 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@chainlink/env-enc").config();
 require("./tasks/deploy-fundme")
+require("hardhat-deploy")
 
 const SEPOLIA_URL = process.env.SEPOLIA_URL
 const SEPOLIA_ACCOUNTS = process.env.SEPOLIA_ACCOUNTS
@@ -28,6 +29,20 @@ module.exports = {
         protocol: "http"
       }
     }
+  },
+  namedAccounts:{
+    firstAccount:{
+      default:0
+    },
+    secondAccount:{
+      default:1
+    }
+  },
+  gasReporter:{
+    enabled: true,
+  },
+  mocha:{
+    timeout: 600000
   },
   sourcify: {
     enabled: false
